@@ -1,217 +1,466 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <title>محصولات و پنل مدیریت</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- … استایل‌ها مشابه نسخه‌ی قبلی … -->
+  <meta charset="UTF-8" />
+  <title>محصولات و پنل مدیریت متصل به Google Sheets</title>
+  <style>
+    body {
+      font-family: "Vazir", sans-serif;
+      background: #f9f9f9;
+      padding: 30px;
+      max-width: 1000px;
+      margin: auto;
+      position: relative;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+    .search-box {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .search-box input {
+      padding: 10px;
+      width: 60%;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 16px;
+    }
+    .product-card {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 16px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+      padding: 20px;
+      margin-bottom: 20px;
+      gap: 20px;
+      transition: 0.3s ease;
+    }
+    .product-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+    }
+    .product-card img {
+      width: 90px;
+      height: 90px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+    }
+    .product-info {
+      flex: 1;
+      line-height: 1.8;
+    }
+    .product-info p {
+      margin: 0;
+      color: #444;
+    }
+    .btn {
+      padding: 6px 12px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .btn:hover {
+      background-color: #0056b3;
+    }
+    #adminBtn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 10px 14px;
+      font-size: 13px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      z-index: 999;
+    }
+    #adminPanel {
+      display: none;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 6px;
+      margin: 5px 0;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: white;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 6px;
+      text-align: center;
+      font-size: 13px;
+    }
+    th {
+      background: #e0e0e0;
+    }
+    img {
+      width: 80px;
+      height: 80px;
+    }
+  </style>
 </head>
 <body>
+
 <div id="mainContent">
   <h2>📦 محصولات ثبت‌شده</h2>
   <div class="search-box">
-    <input type="text" id="searchInput" placeholder="🔍 جست‌وجوی محصول..." oninput="renderCards()" />
+    <input type="text" id="searchInput" placeholder="🔍 جست‌وجوی محصول بر اساس نام..." oninput="renderCards()" />
   </div>
   <div id="product-list"></div>
 </div>
 
 <button id="adminBtn" onclick="enterAdmin()">پنل مدیریت</button>
 
-<div id="adminPanel" style="display:none">
+<div id="adminPanel">
   <h2>پنل فروش</h2>
   <form id="sale-form">
-    <!-- فیلدهای فرم شامل نام، توضیحات، تصویر، قیمت، تخفیف و تعداد -->
-    <input type="text" id="product-name" placeholder="نام محصول" required>
-    <textarea id="product-description" placeholder="توضیحات" required></textarea>
-    <input type="file" id="product-image" accept="image/*">
-    <input type="number" id="purchase-price" placeholder="قیمت خرید" required>
-    <input type="number" id="sale-price" placeholder="قیمت فروش" required>
-    <input type="number" id="quantity" placeholder="تعداد" required>
-    <input type="number" id="discount" placeholder="تخفیف" required>
-    <input type="text" id="profit" placeholder="سود" readonly>
-    <input type="text" id="total" placeholder="جمع کل" readonly>
+    <input type="text" id="product-name" placeholder="نام محصول" required />
+    <textarea id="product-description" placeholder="توضیحات محصول" required></textarea>
+    <input type="file" id="product-image" accept="image/*" />
+    <input type="number" id="purchase-price" placeholder="قیمت خرید (تومان)" required />
+    <input type="number" id="sale-price" placeholder="قیمت فروش (تومان)" required />
+    <input type="number" id="quantity" placeholder="تعداد فروش" required />
+    <input type="number" id="discount" placeholder="تخفیف (تومان)" required />
+    <input type="text" id="profit" placeholder="سود (تومان)" readonly />
+    <input type="text" id="total" placeholder="جمع کل (تومان)" readonly />
     <button type="submit">ثبت فروش</button>
   </form>
 
   <h3>لیست فروش‌ها</h3>
-  <input type="text" id="search" placeholder="جست‌وجو در جدول..." onkeyup="searchTable()">
+  <input type="text" id="search" placeholder="جست‌وجوی محصول..." onkeyup="searchTable()" />
+
   <table id="sale-table">
-    <thead>…</thead>
+    <thead>
+      <tr>
+        <th>تصویر</th>
+        <th>نام محصول</th>
+        <th>توضیحات</th>
+        <th>قیمت خرید</th>
+        <th>قیمت فروش</th>
+        <th>تعداد</th>
+        <th>تخفیف</th>
+        <th>سود</th>
+        <th>جمع کل</th>
+        <th>موجودی</th>
+        <th>عملیات</th>
+      </tr>
+    </thead>
     <tbody></tbody>
   </table>
 </div>
 
 <script>
   const SHEET_URL = "https://script.google.com/macros/s/AKfycbwK18qdDdMLMl3v5ZiOLycJOxPwIY_1A1ZEC3O9G4UhxzAnRS3CF_hbf75dPNTUB3GH8g/exec";
+
+  const productList = document.getElementById("product-list");
+  const searchInput = document.getElementById("searchInput");
+  const adminBtn = document.getElementById("adminBtn");
+  const mainContent = document.getElementById("mainContent");
+  const adminPanel = document.getElementById("adminPanel");
+  const tbody = document.querySelector("#sale-table tbody");
+
   let sales = [];
 
-  function formatNumber(n) {
-    return Number(n).toLocaleString("fa-IR");
+  // عدد رو فارسی و سه رقم جدا شده نمایش میده
+  function formatNumber(num) {
+    return Number(num).toLocaleString("fa-IR");
   }
 
-  function loadSales() {
-    fetch(SHEET_URL + "?action=load")
-      .then(r => r.json())
-      .then(data => { sales = data; renderCards(); renderTable(); })
-      .catch(err => alert("خطا در بارگذاری: " + err));
+  // دریافت داده ها از Google Sheets
+  async function fetchSales() {
+    try {
+      const res = await fetch(SHEET_URL + "?action=get");
+      const data = await res.json();
+      sales = data;
+      renderCards();
+      renderTable();
+    } catch (err) {
+      alert("خطا در بارگذاری داده‌ها از Google Sheets.");
+      console.error(err);
+    }
   }
 
-  function saveSale(item, callback) {
-    fetch(SHEET_URL + "?action=add", {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify(item)
-    })
-    .then(r => r.json())
-    .then(callback)
-    .catch(err => alert("خطا در ذخیره: " + err));
-  }
-
-  function updateSale(item, callback) {
-    fetch(SHEET_URL + "?action=update", {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify(item)
-    })
-    .then(r => r.json())
-    .then(callback)
-    .catch(err => alert("خطا در ویرایش: " + err));
-  }
-
-  function deleteSale(id, callback) {
-    fetch(SHEET_URL + "?action=delete", {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({id})
-    })
-    .then(r => r.json())
-    .then(callback)
-    .catch(err => alert("خطا در حذف: " + err));
-  }
-
+  // نمایش کارت های محصولات (لیست محصولات)
   function renderCards() {
-    const keyword = document.getElementById("searchInput").value.trim().toLowerCase();
-    const list = document.getElementById("product-list");
-    list.innerHTML = "";
-    const filtered = sales.filter(i => i.name.toLowerCase().includes(keyword));
-    if (!filtered.length) {
-      list.innerHTML = "<p style='text-align:center;color:#777;'>محصولی یافت نشد</p>";
+    const keyword = searchInput.value.trim().toLowerCase();
+    productList.innerHTML = "";
+
+    const filtered = sales.filter(item => item.name.toLowerCase().includes(keyword));
+
+    if (filtered.length === 0) {
+      productList.innerHTML = "<p style='text-align:center; color:#777;'>محصولی پیدا نشد.</p>";
       return;
     }
-    filtered.forEach((item, idx) => {
+
+    filtered.forEach((item, index) => {
       const card = document.createElement("div");
       card.className = "product-card";
-      const totalUnit = item.salePrice - item.discount;
+
+      const totalPerUnit = item.salePrice - item.discount;
+
       card.innerHTML = `
-        <img src="${item.image}" alt="">
+        <img src="${item.image}" alt="product" />
         <div class="product-info">
-          <p><strong>${item.name}</strong></p>
-          <p>قیمت: ${formatNumber(item.salePrice)} تومان</p>
-          <p>موجودی: ${formatNumber(item.inventory)}</p>
-          <p>تخفیف: ${formatNumber(item.discount)}</p>
-          <p>قیمت نهایی: ${formatNumber(totalUnit)}</p>
+          <p><strong>نام:</strong> ${item.name}</p>
+          <p><strong>قیمت فروش:</strong> ${formatNumber(item.salePrice)} تومان</p>
+          <p><strong>تعداد:</strong> ${item.inventory}</p>
+          <p><strong>تخفیف:</strong> ${formatNumber(item.discount)} تومان</p>
+          <p><strong>قیمت نهایی:</strong> ${formatNumber(totalPerUnit)} تومان</p>
         </div>
-        <button class="btn" onclick="decreaseInventory(${idx})">کاهش موجودی</button>
+        <button class="btn" onclick="updateInventory(${index})">کاهش موجودی</button>
       `;
-      list.appendChild(card);
+
+      productList.appendChild(card);
     });
   }
 
-  function decreaseInventory(idx) {
-    const count = parseInt(prompt("چند عدد؟"));
-    if (isNaN(count) || count < 0) return alert("عدد معتبر");
-    const item = {...sales[idx], inventory: sales[idx].inventory - count};
-    updateSale(item, () => loadSales());
+  // کاهش موجودی در گوگل شیت
+  async function updateInventory(index) {
+    const count = prompt("چند عدد کم شود؟");
+    if (count === null) return;
+
+    const number = parseInt(count);
+    if (isNaN(number) || number < 0) {
+      alert("عدد معتبر وارد کنید.");
+      return;
+    }
+
+    if (number > sales[index].inventory) {
+      alert("موجودی کافی نیست.");
+      return;
+    }
+
+    const updatedInventory = sales[index].inventory - number;
+
+    try {
+      const res = await fetch(SHEET_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "updateInventory",
+          rowId: sales[index].rowId,
+          inventory: updatedInventory
+        }),
+        headers: { "Content-Type": "application/json" }
+      });
+      const result = await res.json();
+
+      if (result.success) {
+        sales[index].inventory = updatedInventory;
+        renderCards();
+        renderTable();
+      } else {
+        alert("خطا در به‌روزرسانی موجودی.");
+      }
+    } catch (err) {
+      alert("خطا در ارتباط با سرور.");
+      console.error(err);
+    }
   }
 
+  // ورود به پنل مدیریت
+  function enterAdmin() {
+    const password = prompt("رمز عبور پنل مدیریت را وارد کنید:");
+    if (password === "1234") {
+      mainContent.style.display = "none";
+      adminBtn.style.display = "none";
+      adminPanel.style.display = "block";
+      renderTable();
+      history.pushState({ page: "admin" }, "", "#admin");
+    } else {
+      alert("رمز اشتباه است!");
+    }
+  }
+
+  window.addEventListener("popstate", function (event) {
+    if (event.state && event.state.page === "admin") {
+      // پنل مدیریت باز است - کاری نکن
+    } else {
+      mainContent.style.display = "block";
+      adminBtn.style.display = "block";
+      adminPanel.style.display = "none";
+    }
+  });
+
+  // محاسبه سود و جمع کل
+  document.getElementById("purchase-price").oninput =
+  document.getElementById("sale-price").oninput =
+  document.getElementById("discount").oninput =
+  document.getElementById("quantity").oninput = function () {
+    const pur = +document.getElementById("purchase-price").value || 0;
+    const sale = +document.getElementById("sale-price").value || 0;
+    const discount = +document.getElementById("discount").value || 0;
+    const qty = +document.getElementById("quantity").value || 0;
+
+    const profit = (sale - pur - discount) * qty;
+    const total = (sale - discount) * qty;
+
+    document.getElementById("profit").value = profit > 0 ? formatNumber(profit) : 0;
+    document.getElementById("total").value = total > 0 ? formatNumber(total) : 0;
+  };
+
+  // ثبت فروش جدید
+  document.getElementById("sale-form").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const name = document.getElementById("product-name").value.trim();
+    const description = document.getElementById("product-description").value.trim();
+    const purchasePrice = +document.getElementById("purchase-price").value.trim();
+    const salePrice = +document.getElementById("sale-price").value.trim();
+    const quantity = +document.getElementById("quantity").value.trim();
+    const discount = +document.getElementById("discount").value.trim();
+
+    let image = "";
+    const imgInput = document.getElementById("product-image");
+    if (imgInput.files.length > 0) {
+      // تبدیل عکس به base64 (برای ارسال به گوگل شیت)
+      const file = imgInput.files[0];
+      image = await toBase64(file);
+    } else {
+      image = "https://via.placeholder.com/80?text=No+Image";
+    }
+
+    if (!name || !description || !purchasePrice || !salePrice || !quantity) {
+      alert("لطفا همه فیلدهای ضروری را پر کنید.");
+      return;
+    }
+
+    // مقدار سود و جمع کل
+    const profit = (salePrice - purchasePrice - discount) * quantity;
+    const total = (salePrice - discount) * quantity;
+
+    try {
+      const res = await fetch(SHEET_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "add",
+          name,
+          description,
+          purchasePrice,
+          salePrice,
+          quantity,
+          discount,
+          profit,
+          total,
+          image,
+          inventory: quantity
+        }),
+        headers: { "Content-Type": "application/json" }
+      });
+
+      const result = await res.json();
+
+      if (result.success) {
+        alert("فروش با موفقیت ثبت شد.");
+        // ریست کردن فرم
+        e.target.reset();
+        fetchSales();
+      } else {
+        alert("خطا در ثبت فروش.");
+      }
+    } catch (err) {
+      alert("خطا در ارتباط با سرور.");
+      console.error(err);
+    }
+  });
+
+  // تبدیل فایل عکس به base64
+  function toBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+    });
+  }
+
+  // رندر جدول فروش‌ها در پنل مدیریت
   function renderTable() {
-    const tbody = document.querySelector("#sale-table tbody");
     tbody.innerHTML = "";
-    sales.forEach(item => {
+
+    sales.forEach((item, idx) => {
       const tr = document.createElement("tr");
+
       tr.innerHTML = `
-        <td><img src="${item.image}" width="80"></td>
+        <td><img src="${item.image}" alt="img" /></td>
         <td>${item.name}</td>
         <td>${item.description}</td>
         <td>${formatNumber(item.purchasePrice)}</td>
         <td>${formatNumber(item.salePrice)}</td>
-        <td>${formatNumber(item.quantity)}</td>
+        <td>${item.quantity}</td>
         <td>${formatNumber(item.discount)}</td>
         <td>${formatNumber(item.profit)}</td>
         <td>${formatNumber(item.total)}</td>
-        <td>${formatNumber(item.inventory)}</td>
-        <td>
-          <button onclick="editItem(${item.id})">✏️</button>
-          <button onclick="if(confirm('حذف؟')) deleteSale(${item.id}, loadSales)">🗑️</button>
-        </td>`;
+        <td>${item.inventory}</td>
+        <td><button class="btn" onclick="deleteSale(${idx})">حذف</button></td>
+      `;
+
       tbody.appendChild(tr);
     });
   }
 
-  document.getElementById("sale-form").onsubmit = function(e) {
-    e.preventDefault();
-    const f = this;
-    const file = f["product-image"].files[0];
-    const getImg = file ? new Promise(r => {
-      const rd = new FileReader(); rd.onload = () => r(rd.result); rd.readAsDataURL(file);
-    }) : Promise.resolve("");
-    getImg.then(img => {
-      const purchase = +f["purchase-price"].value;
-      const sale = +f["sale-price"].value;
-      const qty = +f["quantity"].value;
-      const disc = +f["discount"].value;
-      const item = {
-        id: f["product-name"].dataset.editingId || null,
-        name: f["product-name"].value,
-        description: f["product-description"].value,
-        image: img,
-        purchasePrice: purchase,
-        salePrice: sale,
-        quantity: qty,
-        inventory: qty,
-        discount: disc,
-        profit: (sale - purchase - disc) * qty,
-        total: sale * qty - disc
-      };
-      const action = item.id ? updateSale : saveSale;
-      action(item, () => {
-        f.reset(); loadSales();
-        delete f["product-name"].dataset.editingId;
-      });
-    });
-  };
+  // جستجوی جدول فروش
+  function searchTable() {
+    const filter = document.getElementById("search").value.toLowerCase();
+    const rows = tbody.getElementsByTagName("tr");
 
-  function editItem(id) {
-    const item = sales.find(i => i.id === id);
-    const f = document.getElementById("sale-form");
-    Object.keys(item).forEach(k => {
-      if (f[k]) f[k].value = item[k];
-    });
-    f["product-name"].dataset.editingId = id;
-    enterAdmin(true);
-  }
-
-  function enterAdmin(fromEdit=false) {
-    const res = fromEdit || prompt("رمز عبور:");
-    if (res === "1234") {
-      document.getElementById("mainContent").style.display = "none";
-      document.getElementById("adminBtn").style.display = "none";
-      document.getElementById("adminPanel").style.display = "block";
-      loadSales();
-    } else {
-      alert("رمز اشتباه");
+    for (let row of rows) {
+      const cells = row.getElementsByTagName("td");
+      const nameCell = cells[1];
+      if (nameCell) {
+        const text = nameCell.textContent || nameCell.innerText;
+        row.style.display = text.toLowerCase().indexOf(filter) > -1 ? "" : "none";
+      }
     }
   }
 
-  function searchTable() {
-    const val = document.getElementById("search").value.toLowerCase();
-    document.querySelectorAll("#sale-table tbody tr").forEach(tr => {
-      const nm = tr.cells[1]?.innerText.toLowerCase();
-      tr.style.display = nm.includes(val) ? "" : "none";
-    });
+  // حذف فروش (ردیف) از گوگل شیت
+  async function deleteSale(idx) {
+    if (!confirm("آیا از حذف این مورد اطمینان دارید؟")) return;
+
+    try {
+      const res = await fetch(SHEET_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "delete",
+          rowId: sales[idx].rowId
+        }),
+        headers: { "Content-Type": "application/json" }
+      });
+      const result = await res.json();
+
+      if (result.success) {
+        sales.splice(idx, 1);
+        renderCards();
+        renderTable();
+      } else {
+        alert("خطا در حذف فروش.");
+      }
+    } catch (err) {
+      alert("خطا در ارتباط با سرور.");
+      console.error(err);
+    }
   }
 
-  loadSales();
+  // شروع کار برنامه
+  fetchSales();
+
 </script>
+
 </body>
 </html>
