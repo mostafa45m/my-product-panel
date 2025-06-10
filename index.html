@@ -1,466 +1,391 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>محصولات و پنل مدیریت متصل به Google Sheets</title>
+  <title>Minimal Menu and Contact</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
+    * {
+      box-sizing: border-box;
+    }
     body {
-      font-family: "Vazir", sans-serif;
-      background: #f9f9f9;
-      padding: 30px;
-      max-width: 1000px;
-      margin: auto;
-      position: relative;
-    }
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
-      color: #333;
-    }
-    .search-box {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-    .search-box input {
-      padding: 10px;
-      width: 60%;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      font-size: 16px;
-    }
-    .product-card {
-      background: #fff;
-      border: 1px solid #e0e0e0;
-      border-radius: 16px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      margin: 0;
+      height: 100vh;
       display: flex;
       align-items: center;
-      padding: 20px;
-      margin-bottom: 20px;
-      gap: 20px;
-      transition: 0.3s ease;
+      background-color: #f0f0f0;
+      font-family: 'Vazirmatn', 'Poppins', sans-serif;
+      position: relative;
     }
-    .product-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.08);
-    }
-    .product-card img {
-      width: 90px;
-      height: 90px;
-      object-fit: cover;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-    }
-    .product-info {
-      flex: 1;
-      line-height: 1.8;
-    }
-    .product-info p {
-      margin: 0;
-      color: #444;
-    }
-    .btn {
-      padding: 6px 12px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 13px;
-    }
-    .btn:hover {
-      background-color: #0056b3;
-    }
-    #adminBtn {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      padding: 10px 14px;
-      font-size: 13px;
-      background-color: #28a745;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      z-index: 999;
-    }
-    #adminPanel {
-      display: none;
-    }
-    input, textarea {
-      width: 100%;
-      padding: 6px;
-      margin: 5px 0;
-      box-sizing: border-box;
-      font-size: 14px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-      background: white;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 6px;
-      text-align: center;
-      font-size: 13px;
-    }
-    th {
-      background: #e0e0e0;
+    .left-section {
+      position: relative;
     }
     img {
-      width: 80px;
-      height: 80px;
+      height: 100vh;
+      object-fit: contain;
+      display: block;
+    }
+    .menu-button {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      z-index: 1100;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      color: white;
+    }
+    .menu-icon {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+      width: 40px;
+      height: 28px;
+    }
+    .menu-icon span {
+      height: 3px;
+      background-color: white;
+      border-radius: 2px;
+      transition: 0.3s ease;
+    }
+    .menu-icon span:nth-child(1) {
+      width: 22px;
+      transform: translateX(0px);
+    }
+    .menu-icon span:nth-child(2) {
+      width: 16px;
+      transform: translateX(6px);
+    }
+    .menu-icon span:nth-child(3) {
+      width: 20px;
+      transform: translateX(2px);
+    }
+    .contact-button {
+      position: absolute;
+      top: 22px;
+      right: 20px;
+      padding: 5px 14px;
+      border: 1.8px solid white;
+      background: transparent;
+      color: white;
+      font-size: 14px;
+      font-weight: 400;
+      border-radius: 9999px;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.3s, color 0.3s;
+      font-family: 'Poppins', sans-serif;
+    }
+    .contact-button:hover {
+      background-color: white;
+      color: #333;
+    }
+
+    .side-menu {
+      position: fixed;
+      top: 0;
+      left: -250px;
+      width: 250px;
+      height: 100vh;
+      background: rgba(20, 20, 20, 0.85);
+      backdrop-filter: blur(8px);
+      color: white;
+      padding: 60px 30px;
+      transition: left 0.3s ease;
+      z-index: 1000;
+    }
+
+    .side-menu.open {
+      left: 0;
+    }
+    .side-menu ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .side-menu ul li {
+      margin: 25px 0;
+      font-size: 20px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: color 0.2s, transform 0.2s;
+      color: #f2f2f2;
+    }
+    .side-menu ul li:hover {
+      color: #ffffff;
+      transform: translateX(5px);
+    }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 900;
+    }
+    .overlay.active {
+      display: block;
+    }
+
+    .contact-page {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: linear-gradient(135deg, #0d151b, #101f29, #172a38);
+      color: white;
+      z-index: 1200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .contact-content {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 0 20px #00f0ff80;
+    }
+    .contact-item {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 16px;
+      text-decoration: none;
+      color: white;
+      transition: background 0.3s, transform 0.3s;
+      opacity: 0;
+      transform: translateX(-50px);
+      animation: slideIn 1.5s forwards;
+    }
+    .contact-item:nth-child(even) {
+      transform: translateX(50px);
+    }
+    .contact-item:nth-child(1) {
+      animation-delay: 0.2s;
+    }
+    .contact-item:nth-child(2) {
+      animation-delay: 0.4s;
+    }
+    .contact-item:nth-child(3) {
+      animation-delay: 0.6s;
+    }
+    .contact-item:nth-child(4) {
+      animation-delay: 0.8s;
+    }
+    .contact-item:nth-child(5) {
+      animation-delay: 1s;
+    }
+    .contact-item i {
+      color: #00c3ff;
+      font-size: 20px;
+      text-shadow: 0 0 6px #00c3ff88;
+    }
+    @keyframes slideIn {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* ----- Services Page Style (Updated) ----- */
+    .services-page {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: linear-gradient(135deg, #0d151b, #101f29, #172a38);
+      color: white;
+      z-index: 1200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+      overflow-y: auto;
+    }
+
+    .services-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+      justify-items: center;
+      align-items: start;
+      max-width: 1000px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .service-box {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 30px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 15px #00f0ff55;
+  width: 100%;
+  max-width: 400px;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: slideIn 1s ease forwards;
+  transition: transform 0.3s ease;
+}
+
+.service-box:nth-child(1) { animation-delay: 0.2s; }
+.service-box:nth-child(2) { animation-delay: 0.4s; }
+.service-box:nth-child(3) { animation-delay: 0.6s; }
+.service-box:nth-child(4) { animation-delay: 0.8s; }
+.service-box:nth-child(5) { animation-delay: 1s; }
+
+.service-box:hover {
+  transform: translateY(-5px);
+}
+
+    .service-box h3 {
+      font-size: 22px;
+      margin-bottom: 15px;
+      color: #00e1ff;
+      text-align: center;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .service-box p {
+      font-size: 15px;
+      line-height: 1.8;
+      color: #e0e0e0;
+      text-align: center;
     }
   </style>
 </head>
 <body>
-
-<div id="mainContent">
-  <h2>📦 محصولات ثبت‌شده</h2>
-  <div class="search-box">
-    <input type="text" id="searchInput" placeholder="🔍 جست‌وجوی محصول بر اساس نام..." oninput="renderCards()" />
+  <div class="left-section">
+    <img src="https://biaupload.com/do.php?imgf=org-b5da4421423e4.jpeg" alt="Your Image" />
+    <button class="menu-button" onclick="toggleMenu()">
+      <div class="menu-icon">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </button>
+    <button class="contact-button" onclick="window.location.href='tel:09159017250'">
+      Contact
+    </button>
   </div>
-  <div id="product-list"></div>
-</div>
 
-<button id="adminBtn" onclick="enterAdmin()">پنل مدیریت</button>
+  <div class="side-menu" id="sideMenu">
+    <ul>
+      <li onclick="scrollToTop()">Home</li>
+      <li onclick="showServices()">Services</li>
+      <li onclick="showContact()">Contact us</li>
+    </ul>
+  </div>
+  <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 
-<div id="adminPanel">
-  <h2>پنل فروش</h2>
-  <form id="sale-form">
-    <input type="text" id="product-name" placeholder="نام محصول" required />
-    <textarea id="product-description" placeholder="توضیحات محصول" required></textarea>
-    <input type="file" id="product-image" accept="image/*" />
-    <input type="number" id="purchase-price" placeholder="قیمت خرید (تومان)" required />
-    <input type="number" id="sale-price" placeholder="قیمت فروش (تومان)" required />
-    <input type="number" id="quantity" placeholder="تعداد فروش" required />
-    <input type="number" id="discount" placeholder="تخفیف (تومان)" required />
-    <input type="text" id="profit" placeholder="سود (تومان)" readonly />
-    <input type="text" id="total" placeholder="جمع کل (تومان)" readonly />
-    <button type="submit">ثبت فروش</button>
-  </form>
+  <div class="contact-page" id="contactPage" style="display: none;">
+    <div class="contact-content">
+      <a class="contact-item" href="https://instagram.com/ZibaSazeSA" target="_blank">
+        <i class="fab fa-instagram"></i> @ZibaSazeSA
+      </a>
+      <a class="contact-item" href="tel:09150617415">
+        <i class="fas fa-mobile-alt"></i> 09150617415
+      </a>
+      <a class="contact-item" href="tel:09159366701">
+        <i class="fas fa-phone"></i> 09159366701 - امیرپور
+      </a>
+      <a class="contact-item" href="tel:09159017250">
+        <i class="fas fa-phone"></i> 09159017250 - بیدکی
+      </a>
+      <a class="contact-item" href="mailto:ZibaSazeSA.co@gmail.com">
+        <i class="fas fa-envelope"></i> ZibaSazeSA.co@gmail.com
+      </a>
+    </div>
+  </div>
 
-  <h3>لیست فروش‌ها</h3>
-  <input type="text" id="search" placeholder="جست‌وجوی محصول..." onkeyup="searchTable()" />
+  <div class="services-page" id="servicesPage" style="display: none;">
+    <div class="services-content">
+      <div class="service-box">
+        <h3>پیمانکاری ابنیه</h3>
+        <p>اجرای پروژه‌های ساختمانی شامل ساختمان‌های مسکونی، تجاری و صنعتی مرمت و بازسازی ابنیه قدیمی با حفظ اصالت و زیبایی.</p>
+      </div>
+      <div class="service-box">
+        <h3>پیمانکاری راه</h3>
+        <p>اجرای پروژه های راهسازی و بهسازی معابر ، جاده ها و بزرگراه ها به همراه زیر ساخت های مربوطه.</p>
+      </div>
+      <div class="service-box">
+        <h3>نقشه‌برداری</h3>
+        <p>خدمات نقشه برداری شامل تهیه نقشه های توپوگرافی ، پیاده سازی و ابنیه.</p>
+      </div>
+      <div class="service-box">
+        <h3>مدیریت ساخت و پیمان</h3>
+        <p>برنامه‌ریزی، نظارت و اجرای پروژه‌ها با مدیریت یکپارچه.</p>
+      </div>
+      <div class="service-box">
+        <h3>تأسیسات</h3>
+        <p>اجرا و بازسازی سیستم های تاسیساتی شامل آب رسانی ، برق و گاز با رعایت استاندارد های مربوطه.</p>
+      </div>
+    </div>
+  </div>
 
-  <table id="sale-table">
-    <thead>
-      <tr>
-        <th>تصویر</th>
-        <th>نام محصول</th>
-        <th>توضیحات</th>
-        <th>قیمت خرید</th>
-        <th>قیمت فروش</th>
-        <th>تعداد</th>
-        <th>تخفیف</th>
-        <th>سود</th>
-        <th>جمع کل</th>
-        <th>موجودی</th>
-        <th>عملیات</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
-
-<script>
-  const SHEET_URL = "https://script.google.com/macros/s/AKfycbwK18qdDdMLMl3v5ZiOLycJOxPwIY_1A1ZEC3O9G4UhxzAnRS3CF_hbf75dPNTUB3GH8g/exec";
-
-  const productList = document.getElementById("product-list");
-  const searchInput = document.getElementById("searchInput");
-  const adminBtn = document.getElementById("adminBtn");
-  const mainContent = document.getElementById("mainContent");
-  const adminPanel = document.getElementById("adminPanel");
-  const tbody = document.querySelector("#sale-table tbody");
-
-  let sales = [];
-
-  // عدد رو فارسی و سه رقم جدا شده نمایش میده
-  function formatNumber(num) {
-    return Number(num).toLocaleString("fa-IR");
-  }
-
-  // دریافت داده ها از Google Sheets
-  async function fetchSales() {
-    try {
-      const res = await fetch(SHEET_URL + "?action=get");
-      const data = await res.json();
-      sales = data;
-      renderCards();
-      renderTable();
-    } catch (err) {
-      alert("خطا در بارگذاری داده‌ها از Google Sheets.");
-      console.error(err);
-    }
-  }
-
-  // نمایش کارت های محصولات (لیست محصولات)
-  function renderCards() {
-    const keyword = searchInput.value.trim().toLowerCase();
-    productList.innerHTML = "";
-
-    const filtered = sales.filter(item => item.name.toLowerCase().includes(keyword));
-
-    if (filtered.length === 0) {
-      productList.innerHTML = "<p style='text-align:center; color:#777;'>محصولی پیدا نشد.</p>";
-      return;
+  <script>
+    function toggleMenu() {
+      document.getElementById('sideMenu').classList.toggle('open');
+      document.getElementById('overlay').classList.toggle('active');
     }
 
-    filtered.forEach((item, index) => {
-      const card = document.createElement("div");
-      card.className = "product-card";
+    function scrollToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      toggleMenu();
+      document.getElementById('contactPage').style.display = 'none';
+      document.getElementById('servicesPage').style.display = 'none';
+      document.querySelector('.left-section').style.display = 'block';
+      history.pushState({ page: 'home' }, '', '#home');
+    }
 
-      const totalPerUnit = item.salePrice - item.discount;
+    function showContact() {
+      document.querySelector('.left-section').style.display = 'none';
+      document.getElementById('servicesPage').style.display = 'none';
+      document.getElementById('contactPage').style.display = 'flex';
+      history.pushState({ page: 'contact' }, '', '#contact');
+      toggleMenu();
+    }
 
-      card.innerHTML = `
-        <img src="${item.image}" alt="product" />
-        <div class="product-info">
-          <p><strong>نام:</strong> ${item.name}</p>
-          <p><strong>قیمت فروش:</strong> ${formatNumber(item.salePrice)} تومان</p>
-          <p><strong>تعداد:</strong> ${item.inventory}</p>
-          <p><strong>تخفیف:</strong> ${formatNumber(item.discount)} تومان</p>
-          <p><strong>قیمت نهایی:</strong> ${formatNumber(totalPerUnit)} تومان</p>
-        </div>
-        <button class="btn" onclick="updateInventory(${index})">کاهش موجودی</button>
-      `;
+    function showServices() {
+      document.querySelector('.left-section').style.display = 'none';
+      document.getElementById('contactPage').style.display = 'none';
+      document.getElementById('servicesPage').style.display = 'flex';
+      history.pushState({ page: 'services' }, '', '#services');
+      toggleMenu();
+    }
 
-      productList.appendChild(card);
+    window.addEventListener('popstate', function (event) {
+      if (!event.state || event.state.page === 'home') {
+        document.getElementById('contactPage').style.display = 'none';
+        document.getElementById('servicesPage').style.display = 'none';
+        document.querySelector('.left-section').style.display = 'block';
+      }
     });
-  }
-
-  // کاهش موجودی در گوگل شیت
-  async function updateInventory(index) {
-    const count = prompt("چند عدد کم شود؟");
-    if (count === null) return;
-
-    const number = parseInt(count);
-    if (isNaN(number) || number < 0) {
-      alert("عدد معتبر وارد کنید.");
-      return;
-    }
-
-    if (number > sales[index].inventory) {
-      alert("موجودی کافی نیست.");
-      return;
-    }
-
-    const updatedInventory = sales[index].inventory - number;
-
-    try {
-      const res = await fetch(SHEET_URL, {
-        method: "POST",
-        body: JSON.stringify({
-          action: "updateInventory",
-          rowId: sales[index].rowId,
-          inventory: updatedInventory
-        }),
-        headers: { "Content-Type": "application/json" }
-      });
-      const result = await res.json();
-
-      if (result.success) {
-        sales[index].inventory = updatedInventory;
-        renderCards();
-        renderTable();
-      } else {
-        alert("خطا در به‌روزرسانی موجودی.");
-      }
-    } catch (err) {
-      alert("خطا در ارتباط با سرور.");
-      console.error(err);
-    }
-  }
-
-  // ورود به پنل مدیریت
-  function enterAdmin() {
-    const password = prompt("رمز عبور پنل مدیریت را وارد کنید:");
-    if (password === "1234") {
-      mainContent.style.display = "none";
-      adminBtn.style.display = "none";
-      adminPanel.style.display = "block";
-      renderTable();
-      history.pushState({ page: "admin" }, "", "#admin");
-    } else {
-      alert("رمز اشتباه است!");
-    }
-  }
-
-  window.addEventListener("popstate", function (event) {
-    if (event.state && event.state.page === "admin") {
-      // پنل مدیریت باز است - کاری نکن
-    } else {
-      mainContent.style.display = "block";
-      adminBtn.style.display = "block";
-      adminPanel.style.display = "none";
-    }
-  });
-
-  // محاسبه سود و جمع کل
-  document.getElementById("purchase-price").oninput =
-  document.getElementById("sale-price").oninput =
-  document.getElementById("discount").oninput =
-  document.getElementById("quantity").oninput = function () {
-    const pur = +document.getElementById("purchase-price").value || 0;
-    const sale = +document.getElementById("sale-price").value || 0;
-    const discount = +document.getElementById("discount").value || 0;
-    const qty = +document.getElementById("quantity").value || 0;
-
-    const profit = (sale - pur - discount) * qty;
-    const total = (sale - discount) * qty;
-
-    document.getElementById("profit").value = profit > 0 ? formatNumber(profit) : 0;
-    document.getElementById("total").value = total > 0 ? formatNumber(total) : 0;
-  };
-
-  // ثبت فروش جدید
-  document.getElementById("sale-form").addEventListener("submit", async function (e) {
-    e.preventDefault();
-
-    const name = document.getElementById("product-name").value.trim();
-    const description = document.getElementById("product-description").value.trim();
-    const purchasePrice = +document.getElementById("purchase-price").value.trim();
-    const salePrice = +document.getElementById("sale-price").value.trim();
-    const quantity = +document.getElementById("quantity").value.trim();
-    const discount = +document.getElementById("discount").value.trim();
-
-    let image = "";
-    const imgInput = document.getElementById("product-image");
-    if (imgInput.files.length > 0) {
-      // تبدیل عکس به base64 (برای ارسال به گوگل شیت)
-      const file = imgInput.files[0];
-      image = await toBase64(file);
-    } else {
-      image = "https://via.placeholder.com/80?text=No+Image";
-    }
-
-    if (!name || !description || !purchasePrice || !salePrice || !quantity) {
-      alert("لطفا همه فیلدهای ضروری را پر کنید.");
-      return;
-    }
-
-    // مقدار سود و جمع کل
-    const profit = (salePrice - purchasePrice - discount) * quantity;
-    const total = (salePrice - discount) * quantity;
-
-    try {
-      const res = await fetch(SHEET_URL, {
-        method: "POST",
-        body: JSON.stringify({
-          action: "add",
-          name,
-          description,
-          purchasePrice,
-          salePrice,
-          quantity,
-          discount,
-          profit,
-          total,
-          image,
-          inventory: quantity
-        }),
-        headers: { "Content-Type": "application/json" }
-      });
-
-      const result = await res.json();
-
-      if (result.success) {
-        alert("فروش با موفقیت ثبت شد.");
-        // ریست کردن فرم
-        e.target.reset();
-        fetchSales();
-      } else {
-        alert("خطا در ثبت فروش.");
-      }
-    } catch (err) {
-      alert("خطا در ارتباط با سرور.");
-      console.error(err);
-    }
-  });
-
-  // تبدیل فایل عکس به base64
-  function toBase64(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = error => reject(error);
-    });
-  }
-
-  // رندر جدول فروش‌ها در پنل مدیریت
-  function renderTable() {
-    tbody.innerHTML = "";
-
-    sales.forEach((item, idx) => {
-      const tr = document.createElement("tr");
-
-      tr.innerHTML = `
-        <td><img src="${item.image}" alt="img" /></td>
-        <td>${item.name}</td>
-        <td>${item.description}</td>
-        <td>${formatNumber(item.purchasePrice)}</td>
-        <td>${formatNumber(item.salePrice)}</td>
-        <td>${item.quantity}</td>
-        <td>${formatNumber(item.discount)}</td>
-        <td>${formatNumber(item.profit)}</td>
-        <td>${formatNumber(item.total)}</td>
-        <td>${item.inventory}</td>
-        <td><button class="btn" onclick="deleteSale(${idx})">حذف</button></td>
-      `;
-
-      tbody.appendChild(tr);
-    });
-  }
-
-  // جستجوی جدول فروش
-  function searchTable() {
-    const filter = document.getElementById("search").value.toLowerCase();
-    const rows = tbody.getElementsByTagName("tr");
-
-    for (let row of rows) {
-      const cells = row.getElementsByTagName("td");
-      const nameCell = cells[1];
-      if (nameCell) {
-        const text = nameCell.textContent || nameCell.innerText;
-        row.style.display = text.toLowerCase().indexOf(filter) > -1 ? "" : "none";
-      }
-    }
-  }
-
-  // حذف فروش (ردیف) از گوگل شیت
-  async function deleteSale(idx) {
-    if (!confirm("آیا از حذف این مورد اطمینان دارید؟")) return;
-
-    try {
-      const res = await fetch(SHEET_URL, {
-        method: "POST",
-        body: JSON.stringify({
-          action: "delete",
-          rowId: sales[idx].rowId
-        }),
-        headers: { "Content-Type": "application/json" }
-      });
-      const result = await res.json();
-
-      if (result.success) {
-        sales.splice(idx, 1);
-        renderCards();
-        renderTable();
-      } else {
-        alert("خطا در حذف فروش.");
-      }
-    } catch (err) {
-      alert("خطا در ارتباط با سرور.");
-      console.error(err);
-    }
-  }
-
-  // شروع کار برنامه
-  fetchSales();
-
-</script>
-
+  </script>
 </body>
 </html>
