@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Minimal Menu and Contact</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet" />
@@ -182,26 +183,18 @@
     .contact-item:nth-child(even) {
       transform: translateX(50px);
     }
-    .contact-item:nth-child(1) {
-      animation-delay: 0.2s;
-    }
-    .contact-item:nth-child(2) {
-      animation-delay: 0.4s;
-    }
-    .contact-item:nth-child(3) {
-      animation-delay: 0.6s;
-    }
-    .contact-item:nth-child(4) {
-      animation-delay: 0.8s;
-    }
-    .contact-item:nth-child(5) {
-      animation-delay: 1s;
-    }
+    .contact-item:nth-child(1) { animation-delay: 0.2s; }
+    .contact-item:nth-child(2) { animation-delay: 0.4s; }
+    .contact-item:nth-child(3) { animation-delay: 0.6s; }
+    .contact-item:nth-child(4) { animation-delay: 0.8s; }
+    .contact-item:nth-child(5) { animation-delay: 1s; }
+
     .contact-item i {
       color: #00c3ff;
       font-size: 20px;
       text-shadow: 0 0 6px #00c3ff88;
     }
+
     @keyframes slideIn {
       to {
         opacity: 1;
@@ -209,7 +202,7 @@
       }
     }
 
-    /* ----- Services Page Style (Updated) ----- */
+    /* ----- Services Page Style (Updated and Responsive) ----- */
     .services-page {
       position: fixed;
       top: 0;
@@ -238,29 +231,28 @@
     }
 
     .service-box {
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  padding: 30px 20px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 0 15px #00f0ff55;
-  width: 100%;
-  max-width: 400px;
-  opacity: 0;
-  transform: translateY(30px);
-  animation: slideIn 1s ease forwards;
-  transition: transform 0.3s ease;
-}
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 30px 20px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 15px #00f0ff55;
+      width: 100%;
+      max-width: 400px;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: slideIn 1s ease forwards;
+      transition: transform 0.3s ease;
+    }
+    .service-box:nth-child(1) { animation-delay: 0.2s; }
+    .service-box:nth-child(2) { animation-delay: 0.4s; }
+    .service-box:nth-child(3) { animation-delay: 0.6s; }
+    .service-box:nth-child(4) { animation-delay: 0.8s; }
+    .service-box:nth-child(5) { animation-delay: 1s; }
 
-.service-box:nth-child(1) { animation-delay: 0.2s; }
-.service-box:nth-child(2) { animation-delay: 0.4s; }
-.service-box:nth-child(3) { animation-delay: 0.6s; }
-.service-box:nth-child(4) { animation-delay: 0.8s; }
-.service-box:nth-child(5) { animation-delay: 1s; }
-
-.service-box:hover {
-  transform: translateY(-5px);
-}
+    .service-box:hover {
+      transform: translateY(-5px);
+    }
 
     .service-box h3 {
       font-size: 22px;
@@ -276,6 +268,21 @@
       line-height: 1.8;
       color: #e0e0e0;
       text-align: center;
+    }
+
+    @media (max-width: 600px) {
+      .service-box h3 {
+        font-size: 18px;
+      }
+      .service-box p {
+        font-size: 14px;
+      }
+      .services-content {
+        padding: 0 10px;
+      }
+      .contact-content {
+        max-width: 95%;
+      }
     }
   </style>
 </head>
