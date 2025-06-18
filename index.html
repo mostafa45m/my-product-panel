@@ -77,6 +77,13 @@
     box-shadow: 0 5px 15px rgb(0 0 0 / 0.15);
   }
 
+  .card img {
+    width: 100%;
+    height: 180px;
+    object-fit: contain;
+    border-radius: 10px;
+    margin-bottom: 10px;
+  }
   .card h3 {
     margin: 10px 0 6px;
     font-size: 18px;
@@ -281,32 +288,31 @@
   // اگر صفحه اول باز شد و hash موجود است، وضعیت را تنظیم کن
   window.onload = () => {
     if (location.hash === "#admin") {
-      // بدون prompt و فرض رمز درست - یا می توانید اینجا prompt اضافه کنید اگر خواستید
       showAdminPanel();
-      // بروزرسانی history بدون اضافه کردن
       history.replaceState({page: 'admin'}, "پنل مدیریت", "#admin");
     } else {
       showMainPage();
       history.replaceState({page: 'main'}, "صفحه اصلی", location.pathname);
     }
+    renderCards();
   };
 
   // نمایش محصولات در صفحه اصلی
   function renderCards() {
-  productCards.innerHTML = "";
-  sales.forEach((item, index) => {
-    productCards.innerHTML += `
-      <div class="card">
-        <img src="${item.image || 'https://via.placeholder.com/150'}" alt="تصویر محصول" style="width:100%; height:180px; object-fit:contain; border-radius:10px;">
-        <h3>${item.name}</h3>
-        <p>${item.description}</p>
-        <div class="price">قیمت فروش: ${formatNumber(item.salePrice)} تومان</div>
-        <div>موجودی: ${item.inventory}</div>
-        <button onclick="decreaseInventory(${index})" style="margin-top: 10px; background: #dc3545; color: white; border: none; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-size: 14px;">کسر موجودی</button>
-      </div>
-    `;
-  });
-}
+    productCards.innerHTML = "";
+    sales.forEach((item, index) => {
+      productCards.innerHTML += `
+        <div class="card">
+          <img src="${item.image || 'https://via.placeholder.com/150'}" alt="تصویر محصول">
+          <h3>${item.name}</h3>
+          <p>${item.description}</p>
+          <div class="price">قیمت فروش: ${formatNumber(item.salePrice)} تومان</div>
+          <div>موجودی: ${item.inventory}</div>
+          <button onclick="decreaseInventory(${index})" style="margin-top: 10px; background: #dc3545; color: white; border: none; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-size: 14px;">کسر موجودی</button>
+        </div>
+      `;
+    });
+  }
 
   function formatNumber(num) {
     return Number(num).toLocaleString("fa-IR");
@@ -329,9 +335,10 @@
 
   saleForm.addEventListener("submit", (e) => {
     e.preventDefault();
+    
     const name = document.getElementById("product-name").value.trim();
     const description = document.getElementById("product-description").value.trim();
-    // تصویر در این نسخه فقط به صورت URL ذخیره می‌شود (تصویر آپلودی اضافه نشده)
+    const imageFile = document.getElementById("product-image").files[0];
     const purchasePrice = parseFloat(document.getElementById("purchase-price").value);
     const salePrice = parseFloat(document.getElementById("sale-price").value);
     const quantity = parseInt(document.getElementById("quantity").value);
@@ -342,31 +349,47 @@
       return;
     }
 
-    // بررسی موجودی محصول و بروزرسانی یا اضافه کردن
-    let existingIndex = sales.findIndex(item => item.name === name);
-    if (existingIndex !== -1) {
-      // به موجودی اضافه کن
-      sales[existingIndex].inventory += quantity;
-      sales[existingIndex].purchasePrice = purchasePrice;
-      sales[existingIndex].salePrice = salePrice;
-      sales[existingIndex].description = description;
-      sales[existingIndex].discount = discount;
-    } else {
-      sales.push({
-        id: Date.now(),
-        name,
-        description,
-        purchasePrice,
-        salePrice,
-        inventory: quantity,
-        discount,
-      });
-    }
+    const handleImageUpload = (imageData) => {
+      let existingIndex = sales.findIndex(item => item.name === name);
+      if (existingIndex !== -1) {
+        sales[existingIndex] = {
+          ...sales[existingIndex],
+          name,
+          description,
+          purchasePrice,
+          salePrice,
+          inventory: sales[existingIndex].inventory + quantity,
+          discount,
+          image: imageData || sales[existingIndex].image
+        };
+      } else {
+        sales.push({
+          id: Date.now(),
+          name,
+          description,
+          purchasePrice,
+          salePrice,
+          inventory: quantity,
+          discount,
+          image: imageData || 'https://via.placeholder.com/150'
+        });
+      }
 
-    localStorage.setItem("sales", JSON.stringify(sales));
-    renderTable();
-    saleForm.reset();
-    calculateProfitAndTotal();
+      localStorage.setItem("sales", JSON.stringify(sales));
+      renderTable();
+      renderCards();
+      saleForm.reset();
+    };
+
+    if (imageFile) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        handleImageUpload(e.target.result);
+      };
+      reader.readAsDataURL(imageFile);
+    } else {
+      handleImageUpload(null);
+    }
   });
 
   // رندر جدول پنل مدیریت
@@ -386,32 +409,20 @@
           <td>${formatNumber(item.salePrice * item.inventory - item.discount)}</td>
           <td>${item.inventory}</td>
           <td>
-               <button onclick="editSale(${index})" style="background:#ffc107; color:white;">ویرایش</button>
-               <button onclick="deleteSale(${index})" style="background:#dc3545; color:white;">حذف</button>
+            <button onclick="editSale(${index})" style="background:#ffc107; color:white;">ویرایش</button>
+            <button onclick="deleteSale(${index})" style="background:#dc3545; color:white;">حذف</button>
           </td>
-
         </tr>
       `;
     });
   }
 
-  function increaseStock(index) {
-    sales[index].inventory++;
-    localStorage.setItem("sales", JSON.stringify(sales));
-    renderTable();
-  }
-  function decreaseStock(index) {
-    if (sales[index].inventory > 0) {
-      sales[index].inventory--;
-      localStorage.setItem("sales", JSON.stringify(sales));
-      renderTable();
-    }
-  }
   function deleteSale(index) {
     if (confirm("آیا مطمئن هستید که می‌خواهید این محصول را حذف کنید؟")) {
       sales.splice(index, 1);
       localStorage.setItem("sales", JSON.stringify(sales));
       renderTable();
+      renderCards();
     }
   }
 
@@ -434,51 +445,51 @@
       row.style.display = text.includes(filter) ? "" : "none";
     });
   }
+
   function decreaseInventory(index) {
-  const amountStr = prompt("چند عدد می‌خواهید از موجودی کم شود؟");
-  const amount = parseInt(amountStr);
-  if (isNaN(amount) || amount <= 0) {
-    alert("عدد وارد شده معتبر نیست.");
-    return;
-  }
-
-  sales[index].inventory -= amount;
-  if (sales[index].inventory <= 0) {
-    if (confirm("موجودی به پایان رسید. حذف شود؟")) {
-      sales.splice(index, 1);
-    } else {
-      sales[index].inventory = 0;
+    const amountStr = prompt("چند عدد می‌خواهید از موجودی کم شود؟");
+    const amount = parseInt(amountStr);
+    if (isNaN(amount) || amount <= 0) {
+      alert("عدد وارد شده معتبر نیست.");
+      return;
     }
-  }
 
-  localStorage.setItem("sales", JSON.stringify(sales));
-  renderCards();
-  renderTable(); // برای بروزرسانی پنل مدیریت
-}
-function editSale(index) {
-  const item = sales[index];
-  const newName = prompt("نام جدید محصول:", item.name);
-  const newDesc = prompt("توضیحات جدید:", item.description);
-  const newPurchase = prompt("قیمت خرید جدید:", item.purchasePrice);
-  const newSale = prompt("قیمت فروش جدید:", item.salePrice);
-  const newDiscount = prompt("تخفیف جدید:", item.discount);
-
-  if (newName && newDesc && !isNaN(newPurchase) && !isNaN(newSale) && !isNaN(newDiscount)) {
-    item.name = newName;
-    item.description = newDesc;
-    item.purchasePrice = parseFloat(newPurchase);
-    item.salePrice = parseFloat(newSale);
-    item.discount = parseFloat(newDiscount);
+    sales[index].inventory -= amount;
+    if (sales[index].inventory <= 0) {
+      if (confirm("موجودی به پایان رسید. حذف شود؟")) {
+        sales.splice(index, 1);
+      } else {
+        sales[index].inventory = 0;
+      }
+    }
 
     localStorage.setItem("sales", JSON.stringify(sales));
-    renderTable();
     renderCards();
-  } else {
-    alert("اطلاعات وارد شده نامعتبر است.");
+    renderTable();
   }
-}
 
-</script>
+  function editSale(index) {
+    const item = sales[index];
+    const newName = prompt("نام جدید محصول:", item.name);
+    const newDesc = prompt("توضیحات جدید:", item.description);
+    const newPurchase = prompt("قیمت خرید جدید:", item.purchasePrice);
+    const newSale = prompt("قیمت فروش جدید:", item.salePrice);
+    const newDiscount = prompt("تخفیف جدید:", item.discount);
 
+    if (newName && newDesc && !isNaN(newPurchase) && !isNaN(newSale) && !isNaN(newDiscount)) {
+      item.name = newName;
+      item.description = newDesc;
+      item.purchasePrice = parseFloat(newPurchase);
+      item.salePrice = parseFloat(newSale);
+      item.discount = parseFloat(newDiscount);
+
+      localStorage.setItem("sales", JSON.stringify(sales));
+      renderTable();
+      renderCards();
+    } else {
+      alert("اطلاعات وارد شده نامعتبر است.");
+    }
+  }
+</script>                                                     
 </body>
 </html>
